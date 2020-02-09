@@ -5,4 +5,4 @@ This project will be using OpenCV to process vision.
 https://docs.opencv.org/master/d6/d00/tutorial_py_root.html
 
 Refer to the HSV Map for color editing
-<img src="HSV_Map.png" width="100">
+<img src="HSV_Map.png" width="1000">
