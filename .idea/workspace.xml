@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="39e215bf-cef9-4bf2-8672-8f48e03db605" name="Default Changelist" comment="" />
+    <list default="true" id="39e215bf-cef9-4bf2-8672-8f48e03db605" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/RamVision.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/RamVision.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrackObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/TrackObject.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,7 +21,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/Ram-Vision" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1XYxVqzn8C1wQDsuinNmmtDQmUd" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -26,7 +32,9 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunManager">
     <configuration name="TrackObject" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
@@ -36,9 +44,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Users\vince\Documents\Code\Vision4461\venv\Scripts\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TrackObject.py" />
@@ -74,21 +82,29 @@
       <screen x="2560" y="499" width="1920" height="1040" />
     </state>
     <state x="2712" y="499" key="#Inspections/0.0.2560.1400/2560.499.1920.1040@2560.499.1920.1040" timestamp="1581237409319" />
-    <state width="1877" height="283" key="GridCell.Tab.0.bottom" timestamp="1581243609571">
-      <screen x="2560" y="499" width="1920" height="1040" />
+    <state x="370" y="0" key="#TrackObject" timestamp="1581312551446">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state x="370" y="0" key="#TrackObject/0.0.1280.680@0.0.1280.680" timestamp="1581312551446" />
+    <state width="1259" height="143" key="GridCell.Tab.0.bottom" timestamp="1581313356719">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1259" height="143" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1581313356719" />
     <state width="1877" height="283" key="GridCell.Tab.0.bottom/0.0.2560.1400/2560.499.1920.1040@2560.499.1920.1040" timestamp="1581243609571" />
-    <state width="1877" height="283" key="GridCell.Tab.0.center" timestamp="1581243609570">
-      <screen x="2560" y="499" width="1920" height="1040" />
+    <state width="1259" height="143" key="GridCell.Tab.0.center" timestamp="1581313356714">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="1259" height="143" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1581313356714" />
     <state width="1877" height="283" key="GridCell.Tab.0.center/0.0.2560.1400/2560.499.1920.1040@2560.499.1920.1040" timestamp="1581243609570" />
-    <state width="1877" height="283" key="GridCell.Tab.0.left" timestamp="1581243609570">
-      <screen x="2560" y="499" width="1920" height="1040" />
+    <state width="1259" height="143" key="GridCell.Tab.0.left" timestamp="1581313356714">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="1259" height="143" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1581313356714" />
     <state width="1877" height="283" key="GridCell.Tab.0.left/0.0.2560.1400/2560.499.1920.1040@2560.499.1920.1040" timestamp="1581243609570" />
-    <state width="1877" height="283" key="GridCell.Tab.0.right" timestamp="1581243609571">
-      <screen x="2560" y="499" width="1920" height="1040" />
+    <state width="1259" height="143" key="GridCell.Tab.0.right" timestamp="1581313356718">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="1259" height="143" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1581313356718" />
     <state width="1877" height="283" key="GridCell.Tab.0.right/0.0.2560.1400/2560.499.1920.1040@2560.499.1920.1040" timestamp="1581243609571" />
     <state width="1877" height="283" key="GridCell.Tab.1.bottom" timestamp="1581243609571">
       <screen x="2560" y="499" width="1920" height="1040" />
@@ -106,6 +122,10 @@
       <screen x="2560" y="499" width="1920" height="1040" />
     </state>
     <state width="1877" height="283" key="GridCell.Tab.1.right/0.0.2560.1400/2560.499.1920.1040@2560.499.1920.1040" timestamp="1581243609571" />
+    <state x="151" y="0" key="SettingsEditor" timestamp="1581313218724">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="151" y="0" key="SettingsEditor/0.0.1280.680@0.0.1280.680" timestamp="1581313218724" />
     <state x="2846" y="497" key="search.everywhere.popup" timestamp="1581241767360">
       <screen x="2560" y="499" width="1920" height="1040" />
     </state>

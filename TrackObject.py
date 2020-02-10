@@ -30,7 +30,7 @@ while True:
     cv2.imshow('mask', mask)
     cv2.imshow('res', res)
 
-    # Check for keyboard input, 'q' to quit
+    # Check for keyboard input, 'escape' to quit
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         break
