@@ -17,10 +17,10 @@ def nothing(x):
 
 # ------Current "good" tracking settings that I found --------#
 # Lower Hue = 69
-# Lower Saturation = 121
-# Lower Value = 151
+# Lower Saturation = 69
+# Lower Value = 69
 
-# Upper Hue = 11
+# Upper Hue = 97
 # Upper Saturation = 239
 # Upper Value = 255
 
@@ -77,10 +77,9 @@ while True:
     for contour in contours:
         area = cv2.contourArea(contour)
 
-        print(area)
+        print("Area is " + str(area))
 
-    cv2.drawContours(res, contours, -1, (0, 0, 255), 3)
-    print(contours)
+    cv2.drawContours(res, contours, -1, (0, 255, 0), 3)
     cv2.imshow("frame", frame)
     cv2.imshow("mask", mask)
     cv2.imshow("res", res)
