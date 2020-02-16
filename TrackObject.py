@@ -88,9 +88,14 @@ while True:
 
     for cnt in contours:
         area = cv2.contourArea(cnt)
+        
+        # Approximates the contour into a shape with less verticies
         approx = cv2.approxPolyDP(cnt, 0.002 * cv2.arcLength(cnt, True), True)
+
+        # Draws the approximated contour
         cv2.drawContours(res, [approx], 0, (0, 255, 0), 5)
 
+        # Turns approximated contour coordinates into 1D arrays
         x = approx.ravel()[0]
         y = approx.ravel()[1]
 
@@ -101,6 +106,17 @@ while True:
                 cv2.putText(res, "Probably a circle", (x, y), font, 1, (0, 255, 0))
         print("Area is " + str(area))
 
+    ''' WIP: Getting points to put into solvePNP to get the angle stuffs.
+    https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html#bool%20solvePnP(InputArray%20objectPoints,%20InputArray%20imagePoints,%20InputArray%20cameraMatrix,%20InputArray%20distCoeffs,%20OutputArray%20rvec,%20OutputArray%20tvec,%20bool%20useExtrinsicGuess,%20int%20flags)
+        # Coordinates of approximated contour's extremes
+        leftmost = tuple(approx[approx[:,:,0].argmin()][0])
+        rightmost = tuple(approx[approx[:,:,0].argmax()][0])
+        topmost = tuple(approx[approx[:,:,1].argmin()][0])
+        bottommost = tuple(approx[approx[:,:,1].argmax()][0])
+
+        # Draw rectangle around contour
+        cv2.rectangle(res,(leftmost[0],topmost[1]),(rightmost[0],bottommost[1]),(0,255,0),3)
+    '''
     cv2.imshow("frame", frame)
     cv2.imshow("mask", mask)
     cv2.imshow("res", res)
