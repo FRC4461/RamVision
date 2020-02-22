@@ -7,7 +7,9 @@
 # A question that I have in mind is that will the Roborio have opencv dependencies setup?
 
 from __future__ import print_function
+from math import pi,atan2,asin
 import numpy as np
+import time
 import cv2
 
 
@@ -33,7 +35,7 @@ def nothing(x):
 # For laptops it should probably be 1
 # Although in the pi it should probably be 0
 # We can have a fail safe so that for sure there is a camera stream
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 # Create a frame that has sliders to calibrate value
 cv2.namedWindow("Tracking")
@@ -45,6 +47,23 @@ cv2.createTrackbar("US", "Tracking", 255, 255, nothing)
 cv2.createTrackbar("UV", "Tracking", 255, 255, nothing)
 
 font = cv2.FONT_HERSHEY_COMPLEX
+
+# Filler numpy array for the coordinates of the corners of the picture uwu
+capturedTargetPoints = np.array([
+                            (0, 0),     # Top left corner
+                            (0, 0),     # Top right corner
+                            (0, 0),     # Bottom left corner
+                            (0, 0)      # Bottom right corner
+                        ])
+
+# 3D coordinates of target with arbitrary frame. Took these numbers from MS paint lol
+# Z-axis can be zero for all of them because the tape is flat uwu
+realTargetPoints = np.array([
+                            (41.0, 193.0, 0.0),     # Top left corner
+                            (350.0, 193.0, 0.0),    # Top right corner
+                            (131.0, 327.0, 0.0),    # Bottom left corner
+                            (273.0, 327.0, 0.0)     # Bottom right corner
+                        ])
 
 while True:
     # Maybe I want to put this into a function as well (Would that slow down the program?)
@@ -66,6 +85,20 @@ while True:
 
     # Read the frame from the cam
     _, frame = cap.read()
+
+    size = frame.shape
+
+    focal_length = size[1]
+    center = (size[1]/2, size[0]/2)
+
+    camera_matrix = np.array(
+                         [[focal_length, 0, center[0]],
+                         [0, focal_length, center[1]],
+                         [0, 0, 1]], dtype = "double"
+                         )
+
+    dist_coeffs = np.zeros((4,1)) # Assuming no lens distortion
+
     # Take the blur to be more accurate
     blurred_frame = cv2.GaussianBlur(frame, (5, 5), 0)
 
@@ -95,28 +128,78 @@ while True:
         # Draws the approximated contour
         cv2.drawContours(res, [approx], 0, (0, 255, 0), 5)
 
-        # Turns approximated contour coordinates into 1D arrays
         x = approx.ravel()[0]
         y = approx.ravel()[1]
 
+        '''
         if area > 14:
             if 4 <= len(approx) <= 7:
                 cv2.putText(res, "It is a Rectangle", (x, y), font, 1, (0, 255, 0))
             elif 8 <= len(approx) <= 10:
                 cv2.putText(res, "Probably a circle", (x, y), font, 1, (0, 255, 0))
-        print("Area is " + str(area))
+        # print("Area is " + str(area))
+        '''
 
-    ''' WIP: Getting points to put into solvePNP to get the angle stuffs.
-    https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html#bool%20solvePnP(InputArray%20objectPoints,%20InputArray%20imagePoints,%20InputArray%20cameraMatrix,%20InputArray%20distCoeffs,%20OutputArray%20rvec,%20OutputArray%20tvec,%20bool%20useExtrinsicGuess,%20int%20flags)
         # Coordinates of approximated contour's extremes
+        # We take the contour and find the argument with the smallest/biggest
+        # value and return the full coordinate
         leftmost = tuple(approx[approx[:,:,0].argmin()][0])
         rightmost = tuple(approx[approx[:,:,0].argmax()][0])
         topmost = tuple(approx[approx[:,:,1].argmin()][0])
         bottommost = tuple(approx[approx[:,:,1].argmax()][0])
 
+        middleLine = (topmost[1] + bottommost[1]) / 2
+
+        lowerCoordinates = []
+        upperCoordinates = []
+
+        for coor in approx:
+            if coor[0][1] > middleLine:
+                upperCoordinates.append([float(i) for i in coor[0]])
+            else:
+                lowerCoordinates.append([float(i) for i in coor[0]])
+
+        topLeft = (99999,0)
+        topRight = (0, 0)
+
+        bottomLeft = (99999,0)
+        bottomRight = (0, 0)
+
+        for coordinate in upperCoordinates:
+            if coordinate[0] < topLeft[0]:
+                topLeft = tuple(coordinate)
+            if coordinate[0] > topRight[0]:
+                topRight = tuple(coordinate)
+
+        for coordinate in lowerCoordinates:
+            if coordinate[0] < bottomLeft[0]:
+                bottomLeft = tuple(coordinate)
+            if coordinate[0] > bottomRight[0]:
+                bottomRight = tuple(coordinate)
+
+        
+        capturedTargetPoints = np.array([
+                            topLeft,     # Top left corner
+                            topRight,     # Top right corner
+                            bottomLeft,     # Bottom left corner
+                            bottomRight      # Bottom right corner
+                            ])
+
+        # print(capturedTargetPoints)
+
         # Draw rectangle around contour
         cv2.rectangle(res,(leftmost[0],topmost[1]),(rightmost[0],bottommost[1]),(0,255,0),3)
-    '''
+
+        if area > 500:
+            (success, rotation_vector, translation_vector) = cv2.solvePnP(realTargetPoints, capturedTargetPoints, camera_matrix, dist_coeffs, flags=cv2.SOLVEPNP_AP3P)
+            R = cv2.Rodrigues(rotation_vector)[0]
+            roll = 180*atan2(-R[2][1], R[2][2])/pi
+            pitch = 180*asin(R[2][0])/pi
+            yaw = 180*atan2(-R[1][0], R[0][0])/pi
+            rot_params= [roll,pitch,yaw]
+            print(rot_params)
+            cv2.putText(res, str(rotation_vector), (leftmost[0], topmost[1]), font, 1, (0, 255, 0))
+
     cv2.imshow("frame", frame)
     cv2.imshow("mask", mask)
     cv2.imshow("res", res)
@@ -124,7 +207,8 @@ while True:
     # Check for keyboard input, 'escape' to quit
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
-        break
+        time.sleep(3)
+
 
 # When everything done, release the capture
 cap.release()
