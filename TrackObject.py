@@ -4,11 +4,62 @@
 # Do pip3 install numpy opencv-python
 # or ctrl + alt + s, select python interpreter, alt + enter, find numpy and opencv-python
 # Keep in mind, cv2 is opencv and will not work if Pycharm tries to install cv2 dependency
-# A question that I have in mind is that will the Roborio have opencv dependencies setup?
+# A question that I have in mind is that will the Pi have opencv dependencies setup?
+# Tutorial docs https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_tutorials.html
+
+# ----ROBOT IP: 10.44.61.2
+
+# Camera Spec
+# Lifecam HD-3000 68.5 degrees
+# Lens focal length 60mm
+# F-Number f/6.3
+# Horizontal Res 180 dpi
+# Vertical resolution 180 dpi
+#
+
+# Target Specs
+# Total half area of all targets = 114 inches
+# Width = 3 ft 3/4 inches
+# Half Height = 1 ft 5 in
+
 
 from __future__ import print_function
 import numpy as np
 import cv2
+import math
+# Network table imports
+# Fix organization later
+import time
+from networktables import NetworkTables
+import sys
+import threading
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
+cond = threading.Condition()
+notified = [False]
+
+if len(sys.argv) != 2:
+    print("Error: specify an IP to connect to!")
+    exit(0)
+
+
+def connectionListener(connected, info):
+    print(info, '; Connected=%s' % connected)
+    with cond:
+        notified[0] = True
+        cond.notify()
+
+NetworkTables.initialize(server='10.44.61.2')
+NetworkTables.addConnectionListener(connectionListener, immediateNotify=True)
+
+with cond:
+    print("Waiting")
+    if not notified[0]:
+        cond.wait()
+
+print("Connected to Robot")
 
 
 def nothing(x):
@@ -45,6 +96,10 @@ cv2.createTrackbar("US", "Tracking", 255, 255, nothing)
 cv2.createTrackbar("UV", "Tracking", 255, 255, nothing)
 
 font = cv2.FONT_HERSHEY_COMPLEX
+
+# Target distance calculations
+# Target area in pixels
+targetArea = 100
 
 while True:
     # Maybe I want to put this into a function as well (Would that slow down the program?)
@@ -86,10 +141,12 @@ while True:
     # This will be a numpy array in x,y values
     contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+    table = NetworkTables.getTable('Shuffleboard')
+
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        
-        # Approximates the contour into a shape with less verticies
+
+        # Approximates the contour into a shape with less vertices
         approx = cv2.approxPolyDP(cnt, 0.002 * cv2.arcLength(cnt, True), True)
 
         # Draws the approximated contour
@@ -99,24 +156,15 @@ while True:
         x = approx.ravel()[0]
         y = approx.ravel()[1]
 
-        if area > 14:
-            if 4 <= len(approx) <= 7:
-                cv2.putText(res, "It is a Rectangle", (x, y), font, 1, (0, 255, 0))
-            elif 8 <= len(approx) <= 10:
-                cv2.putText(res, "Probably a circle", (x, y), font, 1, (0, 255, 0))
-        print("Area is " + str(area))
+        if area >= targetArea:
+            if 5 <= len(approx) <= 7:
+                cv2.putText(res, "Rectangle found?", (x, y), font, 1, (0, 255, 0))
+            print("Area is " + str(area))
+            table.putBoolean("objectFound", True)
+            table.putBoolean("targetArea", area)
+            # Start doing area calculation and distance
+            c = max(cnt, key=cv2.contourArea)
 
-    ''' WIP: Getting points to put into solvePNP to get the angle stuffs.
-    https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html#bool%20solvePnP(InputArray%20objectPoints,%20InputArray%20imagePoints,%20InputArray%20cameraMatrix,%20InputArray%20distCoeffs,%20OutputArray%20rvec,%20OutputArray%20tvec,%20bool%20useExtrinsicGuess,%20int%20flags)
-        # Coordinates of approximated contour's extremes
-        leftmost = tuple(approx[approx[:,:,0].argmin()][0])
-        rightmost = tuple(approx[approx[:,:,0].argmax()][0])
-        topmost = tuple(approx[approx[:,:,1].argmin()][0])
-        bottommost = tuple(approx[approx[:,:,1].argmax()][0])
-
-        # Draw rectangle around contour
-        cv2.rectangle(res,(leftmost[0],topmost[1]),(rightmost[0],bottommost[1]),(0,255,0),3)
-    '''
     cv2.imshow("frame", frame)
     cv2.imshow("mask", mask)
     cv2.imshow("res", res)
