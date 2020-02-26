@@ -22,6 +22,10 @@
 # Width = 3 ft 3/4 inches
 # Half Height = 1 ft 5 in
 
+# Pixels per millimeter
+# f_x = f * m_x
+# f_y = f * m_y
+
 
 from __future__ import print_function
 import numpy as np
@@ -50,6 +54,7 @@ def connectionListener(connected, info):
     with cond:
         notified[0] = True
         cond.notify()
+
 
 NetworkTables.initialize(server='10.44.61.2')
 NetworkTables.addConnectionListener(connectionListener, immediateNotify=True)
