@@ -15,12 +15,11 @@
 # F-Number f/6.3
 # Horizontal Res 180 dpi
 # Vertical resolution 180 dpi
-#
 
 # Target Specs
-# Total half area of all targets = 114 inches
-# Width = 3 ft 3/4 inches
-# Half Height = 1 ft 5 in
+# Width = 1 ft 7 and 5/8 inches
+# Height = 1 ft 5 inches
+# 6 ft 9 and 1/4 inches above field carpet
 
 # Pixels per millimeter
 # f_x = f * m_x
@@ -30,6 +29,7 @@
 from __future__ import print_function
 import numpy as np
 import cv2
+import imutils
 import math
 # Network table imports
 # Fix organization later
@@ -41,36 +41,31 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-cond = threading.Condition()
-notified = [False]
-
-if len(sys.argv) != 2:
-    print("Error: specify an IP to connect to!")
-    exit(0)
-
-
-def connectionListener(connected, info):
-    print(info, '; Connected=%s' % connected)
-    with cond:
-        notified[0] = True
-        cond.notify()
-
-
-NetworkTables.initialize(server='10.44.61.2')
-NetworkTables.addConnectionListener(connectionListener, immediateNotify=True)
-
-with cond:
-    print("Waiting")
-    if not notified[0]:
-        cond.wait()
-
-print("Connected to Robot")
-
-
 def nothing(x):
     pass
 
 
+# Change according to which camera you want to use
+# For laptops it should probably be 1
+# Although in the pi it should probably be 0
+# We can have a fail safe so that for sure there is a camera stream
+cap = cv2.VideoCapture(0)
+
+# All units in millimeters
+focalLength = 60
+realHeight = 431.8
+sensorHeight = 40
+#This will be in pixels
+if cap.isOpened():
+    imageHeight = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+# Convert from mm to inches, mm/25.4
+def distanceToObject(objectHeight):
+    return truncate(focalLength * realHeight * imageHeight / objectHeight * sensorHeight / 25.4, 2)
+
+def truncate(number, digits) -> float:
+    stepper = 10.0 ** digits
+    return math.trunc(stepper * number) / stepper
 # HSV Notes
 # H - Hue (Dominant Wavelength)
 # S - Saturation (Purity / Shade of the color)
@@ -85,11 +80,6 @@ def nothing(x):
 # Upper Saturation = 239
 # Upper Value = 255
 
-# Change according to which camera you want to use
-# For laptops it should probably be 1
-# Although in the pi it should probably be 0
-# We can have a fail safe so that for sure there is a camera stream
-cap = cv2.VideoCapture(0)
 
 # Create a frame that has sliders to calibrate value
 cv2.namedWindow("Tracking")
@@ -104,7 +94,7 @@ font = cv2.FONT_HERSHEY_COMPLEX
 
 # Target distance calculations
 # Target area in pixels
-targetArea = 100
+targetArea = 200
 
 while True:
     # Maybe I want to put this into a function as well (Would that slow down the program?)
@@ -161,13 +151,20 @@ while True:
         x = approx.ravel()[0]
         y = approx.ravel()[1]
 
-        if area >= targetArea:
-            if 5 <= len(approx) <= 7:
+        if area <= targetArea:
+            if 3 <= len(approx) <= 9:
                 cv2.putText(res, "Rectangle found?", (x, y), font, 1, (0, 255, 0))
+                # Get the bounding rect
+                x, y, w, h = cv2.boundingRect(cnt)
+                # Draw red rectangle
+                cv2.rectangle(res, (x, y), (x+w, y+h), (0, 0, 255), 2)
+                cv2.putText(res, "Distance from target " + str(distanceToObject(y+h)) + " inches", (x+5, y+5), font, 1, (255, 0, 0))
             print("Area is " + str(area))
+
             table.putBoolean("objectFound", True)
             table.putBoolean("targetArea", area)
             # Start doing area calculation and distance
+            #
             c = max(cnt, key=cv2.contourArea)
 
     cv2.imshow("frame", frame)
