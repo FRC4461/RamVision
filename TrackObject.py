@@ -41,6 +41,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 def nothing(x):
     pass
 
@@ -49,23 +50,28 @@ def nothing(x):
 # For laptops it should probably be 1
 # Although in the pi it should probably be 0
 # We can have a fail safe so that for sure there is a camera stream
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 # All units in millimeters
 focalLength = 60
 realHeight = 431.8
-sensorHeight = 40
-#This will be in pixels
+sensorHeight = 25
+
+# This will be in pixels
 if cap.isOpened():
     imageHeight = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    print("IMAGE HEIGHT IS " + str(imageHeight))
 
 # Convert from mm to inches, mm/25.4
 def distanceToObject(objectHeight):
-    return truncate(focalLength * realHeight * imageHeight / objectHeight * sensorHeight / 25.4, 2)
+    return truncate((focalLength * realHeight * imageHeight / (objectHeight * sensorHeight)) / 25.4, 2)
+
 
 def truncate(number, digits) -> float:
     stepper = 10.0 ** digits
     return math.trunc(stepper * number) / stepper
+
+
 # HSV Notes
 # H - Hue (Dominant Wavelength)
 # S - Saturation (Purity / Shade of the color)
@@ -94,7 +100,7 @@ font = cv2.FONT_HERSHEY_COMPLEX
 
 # Target distance calculations
 # Target area in pixels
-targetArea = 200
+targetArea = 50
 
 while True:
     # Maybe I want to put this into a function as well (Would that slow down the program?)
@@ -142,7 +148,7 @@ while True:
         area = cv2.contourArea(cnt)
 
         # Approximates the contour into a shape with less vertices
-        approx = cv2.approxPolyDP(cnt, 0.002 * cv2.arcLength(cnt, True), True)
+        approx = cv2.approxPolyDP(cnt, 0.015 * cv2.arcLength(cnt, True), True)
 
         # Draws the approximated contour
         cv2.drawContours(res, [approx], 0, (0, 255, 0), 5)
@@ -151,20 +157,17 @@ while True:
         x = approx.ravel()[0]
         y = approx.ravel()[1]
 
-        if area <= targetArea:
-            if 3 <= len(approx) <= 9:
-                cv2.putText(res, "Rectangle found?", (x, y), font, 1, (0, 255, 0))
-                # Get the bounding rect
-                x, y, w, h = cv2.boundingRect(cnt)
-                # Draw red rectangle
-                cv2.rectangle(res, (x, y), (x+w, y+h), (0, 0, 255), 2)
-                cv2.putText(res, "Distance from target " + str(distanceToObject(y+h)) + " inches", (x+5, y+5), font, 1, (255, 0, 0))
+        if 6 <= len(approx) <= 9:
+            # Get the bounding rect
+            x, y, w, h = cv2.boundingRect(cnt)
+            # Draw red rectangle
+            cv2.rectangle(res, (x, y), (x + w, y + h), (0, 0, 255), 2)
+            cv2.putText(res, "Distance: " + str(distanceToObject(y + h)) + " inches", (x - 20, y), font, 1, (255, 0, 0))
             print("Area is " + str(area))
-
+            print("Object height is " + str(y))
             table.putBoolean("objectFound", True)
             table.putBoolean("targetArea", area)
             # Start doing area calculation and distance
-            #
             c = max(cnt, key=cv2.contourArea)
 
     cv2.imshow("frame", frame)
